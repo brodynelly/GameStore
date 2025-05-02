@@ -1,0 +1,150 @@
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container hero-content">
+        <div class="hero-text fade-in">
+          <h1 class="hero-title">Discover Amazing Indie Games</h1>
+          <p class="hero-subtitle">Explore a curated collection of the best indie games from talented developers around the world.</p>
+          <div class="hero-buttons">
+            <a routerLink="/catalog" class="btn btn-primary">Browse Games</a>
+            <a routerLink="/auth/register" class="btn btn-outline">Sign Up</a>
+          </div>
+        </div>
+        <div class="hero-image slide-in-right">
+          <!-- Placeholder for hero image -->
+          <div class="hero-image-placeholder">
+            <span class="material-icons hero-icon">sports_esports</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Featured Games Section -->
+    <section class="featured-games">
+      <div class="container">
+        <h2 class="section-title">Featured Games</h2>
+        <p class="section-subtitle">Check out these popular titles from our collection</p>
+        
+        <div class="games-grid">
+          <div class="game-card-container slide-in-bottom" *ngFor="let game of featuredGames">
+            <app-game-card [game]="game"></app-game-card>
+          </div>
+        </div>
+        
+        <div class="text-center mt-4">
+          <a routerLink="/catalog" class="btn btn-secondary">View All Games</a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+      <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Simple steps to find and purchase your next favorite game</p>
+        
+        <div class="steps-container">
+          <div class="step fade-in">
+            <div class="step-icon">
+              <span class="material-icons">search</span>
+            </div>
+            <h3 class="step-title">Discover</h3>
+            <p class="step-description">Browse our extensive collection of indie games across various genres.</p>
+          </div>
+          
+          <div class="step fade-in">
+            <div class="step-icon">
+              <span class="material-icons">add_shopping_cart</span>
+            </div>
+            <h3 class="step-title">Select</h3>
+            <p class="step-description">Add your favorite games to your shopping cart with a single click.</p>
+          </div>
+          
+          <div class="step fade-in">
+            <div class="step-icon">
+              <span class="material-icons">credit_card</span>
+            </div>
+            <h3 class="step-title">Purchase</h3>
+            <p class="step-description">Securely checkout and instantly receive access to your games.</p>
+          </div>
+          
+          <div class="step fade-in">
+            <div class="step-icon">
+              <span class="material-icons">gamepad</span>
+            </div>
+            <h3 class="step-title">Play</h3>
+            <p class="step-description">Download and start playing your new games right away!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Genre Section -->
+    <section class="genres">
+      <div class="container">
+        <h2 class="section-title">Explore by Genre</h2>
+        <p class="section-subtitle">Find games that match your interests</p>
+        
+        <div class="genres-grid">
+          <a routerLink="/catalog" [queryParams]="{genre: 'Adventure'}" class="genre-card">
+            <div class="genre-icon">
+              <span class="material-icons">explore</span>
+            </div>
+            <h3 class="genre-title">Adventure</h3>
+          </a>
+          
+          <a routerLink="/catalog" [queryParams]="{genre: 'RPG'}" class="genre-card">
+            <div class="genre-icon">
+              <span class="material-icons">auto_stories</span>
+            </div>
+            <h3 class="genre-title">RPG</h3>
+          </a>
+          
+          <a routerLink="/catalog" [queryParams]="{genre: 'Strategy'}" class="genre-card">
+            <div class="genre-icon">
+              <span class="material-icons">psychology</span>
+            </div>
+            <h3 class="genre-title">Strategy</h3>
+          </a>
+          
+          <a routerLink="/catalog" [queryParams]="{genre: 'Action'}" class="genre-card">
+            <div class="genre-icon">
+              <span class="material-icons">flash_on</span>
+            </div>
+            <h3 class="genre-title">Action</h3>
+          </a>
+          
+          <a routerLink="/catalog" [queryParams]="{genre: 'Puzzle'}" class="genre-card">
+            <div class="genre-icon">
+              <span class="material-icons">extension</span>
+            </div>
+            <h3 class="genre-title">Puzzle</h3>
+          </a>
+          
+          <a routerLink="/catalog" [queryParams]="{genre: 'Simulation'}" class="genre-card">
+            <div class="genre-icon">
+              <span class="material-icons">smartphone</span>
+            </div>
+            <h3 class="genre-title">Simulation</h3>
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+      <div class="container">
+        <div class="newsletter-container">
+          <div class="newsletter-content">
+            <h2 class="newsletter-title">Stay Updated</h2>
+            <p class="newsletter-text">Subscribe to our newsletter to receive updates on new games, exclusive offers, and more!</p>
+          </div>
+          
+          <form class="newsletter-form">
+            <input type="email" class="form-control" placeholder="Your email address" required>
+            <button type="submit" class="btn btn-accent">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>

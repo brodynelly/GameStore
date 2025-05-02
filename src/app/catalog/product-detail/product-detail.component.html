@@ -1,0 +1,31 @@
+<div class="product-detail-container">
+    <div class="container"><div class="back-link">
+        <a routerLink="/catalog" class="btn-link"><span class="material-icons">arrow_back</span>Back to Catalog</a>
+    </div><ng-container *ngIf="!isLoading && game; else loadingTemplate">
+        <div class="product-detail fade-in"><div class="product-image-container"><img [src]="game.imageUrl" [alt]="game.title" class="product-image">
+            <div class="product-badge" *ngIf="game.inStock">In Stock</div>
+        </div>
+        <div class="product-info">
+            <div class="product-header"><h1 class="product-title">{{ game.title }}</h1>
+                <div class="product-rating"><div class="rating-stars"><span class="material-icons" *ngFor="let star of getStars(game.rating)">{{ star === "full" ? "star" : (star === "half" ? "star_half" : "star_border") }}</span>
+                </div><span class="rating-number">{{ game.rating.toFixed(1) }}</span>
+            </div>
+        </div>
+        <div class="product-developer"><span class="label">Developer:</span> {{ game.developer }}</div>
+        <div class="product-genres"><span class="genre-tag" *ngFor="let genre of game.genres">{{ genre }}</span>
+        </div><div class="product-description"><p>{{ game.description }}</p>
+        </div><div class="product-meta"><div class="meta-item"><span class="label">Release Date:</span><span>{{ formatDate(game.releaseDate) }}</span>
+        </div>
+    </div>
+    <div class="product-action"><div class="product-price">${{ game.price }}</div><button class="btn btn-primary add-to-cart-btn" [disabled]="isInCart" [class.in-cart]="isInCart" (click)="addToCart(game)"><span class="material-icons">{{ isInCart ? "check" : "add_shopping_cart" }}</span>{{ isInCart ? "Added to Cart" : "Add to Cart" }}</button>
+</div>
+</div>
+</div>
+</ng-container>
+<ng-template #loadingTemplate>
+    <div class="loading-container"><div class="spinner"></div><p>Loading game details...</p>
+</div>
+</ng-template><div class="error-message" *ngIf="errorMessage"><p>{{ errorMessage }}</p><a routerLink="/catalog" class="btn btn-primary">Return to Catalog</a>
+</div>
+</div>
+</div>

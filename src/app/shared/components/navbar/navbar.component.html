@@ -1,0 +1,38 @@
+<nav class="navbar" [class.scrolled]="scrolled">
+    <div class="container navbar-container">
+      <a routerLink="/" class="navbar-brand">
+        <span class="brand-text">Game Store</span>
+      </a>
+      
+      <div class="nav-toggle" (click)="toggleMenu()">
+        <span class="material-icons">{{ isMenuOpen ? 'close' : 'menu' }}</span>
+      </div>
+      
+      <div class="navbar-menu" [class.open]="isMenuOpen">
+        <div class="navbar-start">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="navbar-item">Home</a>
+          <a routerLink="/catalog" routerLinkActive="active" class="navbar-item">Games</a>
+        </div>
+        
+        <div class="navbar-end">
+          <a routerLink="/cart" routerLinkActive="active" class="navbar-item cart-link">
+            <span class="material-icons">shopping_cart</span>
+            <span class="cart-count" *ngIf="cartCount > 0">{{ cartCount }}</span>
+          </a>
+          
+          <ng-container *ngIf="isLoggedIn; else authLinks">
+            <a class="navbar-item user-link">
+              <span class="material-icons">person</span>
+              <span class="username">{{ username }}</span>
+            </a>
+            <a class="navbar-item" (click)="logout()">Logout</a>
+          </ng-container>
+          
+          <ng-template #authLinks>
+            <a routerLink="/auth/login" routerLinkActive="active" class="navbar-item">Login</a>
+            <a routerLink="/auth/register" routerLinkActive="active" class="navbar-item register-btn">Register</a>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </nav>

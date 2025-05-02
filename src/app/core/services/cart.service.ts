@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { CartItem } from '../models/cart-item.model';
 import { Game } from '../models/game.model';
 
@@ -7,6 +8,7 @@ import { Game } from '../models/game.model';
   providedIn: 'root'
 })
 export class CartService {
+  private apiUrl = 'http://localhost:3000/api/cart';
   private cartItems: CartItem[] = [];
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   public cartItems$ = this.cartItemsSubject.asObservable();
@@ -17,7 +19,7 @@ export class CartService {
   private cartCountSubject = new BehaviorSubject<number>(0);
   public cartCount$ = this.cartCountSubject.asObservable();
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.loadCart();
   }
 
@@ -103,5 +105,10 @@ export class CartService {
 
   isInCart(gameId: number): boolean {
     return this.cartItems.some(item => item.id === gameId);
+  }
+
+  // New functionality: Sync cart with backend
+  syncCartWithBackend(): Observable<any> {
+    return this.http.post(this.apiUrl, { cart: this.cartItems });
   }
 }

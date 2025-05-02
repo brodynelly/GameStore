@@ -1,0 +1,18 @@
+<div class="game-card card">
+    <div class="game-image-container">
+        <img [src]="game.imageUrl" [alt]="game.title" class="game-image">
+        <div class="game-rating"><span class="material-icons">star</span><span>{{ game.rating }}</span>
+        </div>
+    </div>
+    <div class="game-info"><h3 class="game-title">{{ game.title }}</h3><p class="game-developer">{{ game.developer }}</p>
+        <p class="game-description">{{ game.shortDescription }}</p><div class="game-meta"><div class="game-genres">
+            <span class="game-genre" *ngFor="let genre of game.genres.slice(0, 2)">{{ genre }}</span>
+        </div>
+        <div class="game-price">${{ game.price }}</div>
+    </div>
+    <div class="game-actions"><a routerLink="/catalog/{{ game.id }}" class="btn-outline details-btn">More Info</a>
+        <button class="btn-primary add-btn" (click)="addToCart()" [disabled]="isInCart" [class.in-cart]="isInCart">
+            <span class="material-icons">{{ isInCart ? "check" : "add_shopping_cart" }}</span>{{ isInCart ? "Added" : "Add to Cart" }}</button>
+        </div>
+    </div>
+</div>
