@@ -1,69 +1,66 @@
 <div class="auth-container">
-    <div class="auth-card fade-in">
-      <div class="auth-header">
-        <h1 class="auth-title">Login</h1>
-        <p class="auth-subtitle">Welcome back! Please login to continue.</p>
+  <div class="auth-card fade-in">
+    <div class="auth-header">
+      <h1 class="auth-title">Login</h1>
+      <p class="auth-subtitle">Welcome back! Please login to continue.</p>
+    </div>
+    
+    <div class="auth-alert error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          formControlName="username" 
+          class="form-control" 
+          [class.is-invalid]="username?.invalid && (username?.dirty || username?.touched)"
+          placeholder="Your username"
+        >
+        <div class="invalid-feedback" *ngIf="username?.errors?.['required'] && (username?.dirty || username?.touched)">
+          Username is required
+        </div>
       </div>
       
-      <div class="auth-alert error" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
-      
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-        <div class="form-group">
-          <label for="email">Email</label>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="password-field">
           <input 
-            type="email" 
-            id="email" 
-            formControlName="email" 
+            [type]="showPassword ? 'text' : 'password'" 
+            id="password" 
+            formControlName="password" 
             class="form-control" 
-            [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
-            placeholder="your.email@example.com"
+            [class.is-invalid]="password?.invalid && (password?.dirty || password?.touched)"
+            placeholder="Your password"
           >
-          <div class="invalid-feedback" *ngIf="email?.errors?.['required'] && (email?.dirty || email?.touched)">
-            Email is required
-          </div>
-          <div class="invalid-feedback" *ngIf="email?.errors?.['email'] && (email?.dirty || email?.touched)">
-            Please enter a valid email address
-          </div>
+          <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+            <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
         </div>
-        
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="password-field">
-            <input 
-              [type]="showPassword ? 'text' : 'password'" 
-              id="password" 
-              formControlName="password" 
-              class="form-control" 
-              [class.is-invalid]="password?.invalid && (password?.dirty || password?.touched)"
-              placeholder="Your password"
-            >
-            <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
-              <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
-            </button>
-          </div>
-          <div class="invalid-feedback" *ngIf="password?.errors?.['required'] && (password?.dirty || password?.touched)">
-            Password is required
-          </div>
+        <div class="invalid-feedback" *ngIf="password?.errors?.['required'] && (password?.dirty || password?.touched)">
+          Password is required
         </div>
-        
-        <div class="form-options">
-          <div class="remember-me">
-            <input type="checkbox" id="remember" formControlName="rememberMe">
-            <label for="remember">Remember me</label>
-          </div>
-          <a href="#" class="forgot-password">Forgot password?</a>
-        </div>
-        
-        <button type="submit" class="btn btn-primary submit-btn" [disabled]="loginForm.invalid || isLoading">
-          <span class="spinner" *ngIf="isLoading"></span>
-          {{ isLoading ? 'Logging in...' : 'Login' }}
-        </button>
-      </form>
-      
-      <div class="auth-footer">
-        <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
       </div>
+      
+      <div class="form-options">
+        <div class="remember-me">
+          <input type="checkbox" id="remember" formControlName="rememberMe">
+          <label for="remember">Remember me</label>
+        </div>
+        <a href="#" class="forgot-password">Forgot password?</a>
+      </div>
+      
+      <button type="submit" class="btn btn-primary submit-btn" [disabled]="loginForm.invalid || isLoading">
+        <span class="spinner" *ngIf="isLoading"></span>
+        {{ isLoading ? 'Logging in...' : 'Login' }}
+      </button>
+    </form>
+    
+    <div class="auth-footer">
+      <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
     </div>
   </div>
+</div>
