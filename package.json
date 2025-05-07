@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "ng": "npx ng",
-    "start": "npx ng serve",
+    "start:frontend": "npx ng serve",
+    "start:backend": "node server.js",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "build": "npx ng build",
     "install-deps": "npm install --legacy-peer-deps"
   },
