@@ -29,16 +29,28 @@ const STATIC_PORT = 3000; // Fixed port for the first server
 const DYNAMIC_PORT = normalizePort(process.env.PORT || '4000'); // Dynamic port for the second server
 
 // -------------------- First Server (Static Port) --------------------
+// -------------------- First Server (Static Port) --------------------
 const staticApp = express();
 
+// Add CORS configuration to the static server
+staticApp.use(cors({
+  origin: '*', // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'Access-Control-Allow-Origin'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+
+// Serve the dynamic port number
 staticApp.get('/', (req, res) => {
   res.json({ dynamicPort: DYNAMIC_PORT }); // Serve the dynamic port number
 });
 
+// Start the static server
 staticApp.listen(STATIC_PORT, () => {
   console.log(`Static server is running on Port ${STATIC_PORT}`);
 });
-
 // -------------------- Second Server (Dynamic Port) --------------------
 const dynamicApp = express();
 
