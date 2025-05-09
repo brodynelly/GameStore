@@ -11,17 +11,20 @@
     
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="email">Email</label>
         <input 
-          type="text" 
-          id="username" 
-          formControlName="username" 
+          type="email" 
+          id="email" 
+          formControlName="email" 
           class="form-control" 
-          [class.is-invalid]="username?.invalid && (username?.dirty || username?.touched)"
-          placeholder="Your username"
+          [class.is-invalid]="email?.invalid && (email?.dirty || email?.touched)"
+          placeholder="Your email"
         >
-        <div class="invalid-feedback" *ngIf="username?.errors?.['required'] && (username?.dirty || username?.touched)">
-          Username is required
+        <div class="invalid-feedback" *ngIf="email?.errors?.['required'] && (email?.dirty || email?.touched)">
+          Email is required
+        </div>
+        <div class="invalid-feedback" *ngIf="email?.errors?.['email'] && (email?.dirty || email?.touched)">
+          Please enter a valid email address
         </div>
       </div>
       

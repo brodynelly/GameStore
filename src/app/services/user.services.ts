@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -8,11 +8,19 @@ import { catchError } from 'rxjs/operators';
 })
 export class UserService {
   private apiUrl = 'http://localhost:3000/api/auth'; // Backend API URL for authentication
+  private httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }),
+    withCredentials: false // Changed to false since we're using '*' for CORS
+  };
 
   constructor(private http: HttpClient) {}
 
-  login(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, { username, password }).pipe(
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, { email, password }, this.httpOptions).pipe(
       catchError((error) => {
         console.error('Login error:', error);
         return throwError(() => new Error(error.error?.message || 'Login failed'));
@@ -20,8 +28,8 @@ export class UserService {
     );
   }
 
-  register(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, { username, password }).pipe(
+  register(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, { email, password }, this.httpOptions).pipe(
       catchError((error) => {
         console.error('Registration error:', error);
         return throwError(() => new Error(error.error?.message || 'Registration failed'));

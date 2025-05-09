@@ -4,8 +4,22 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors()); // Allow frontend requests (on a different port)
-app.use(bodyParser.json()); // Parse JSON bodies
+// CORS configuration
+app.use(cors({
+  origin: '*', // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'Access-Control-Allow-Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+
+// Enable pre-flight requests for all routes
+app.options('*', cors());
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Mock data
 const games = [
@@ -115,8 +129,18 @@ const games = [
   }
 ];
 
-let cart = [];
-let users = [{ id: 1, username: 'testuser', password: 'password123' }];
+// User-specific carts
+const userCarts = new Map();
+
+// Helper function to get user cart
+function getUserCart(userId) {
+  if (!userCarts.has(userId)) {
+    userCarts.set(userId, []);
+  }
+  return userCarts.get(userId);
+}
+
+let users = [{ id: 1, email: 'testuser@gmail.com', password: 'password123' }];
 
 // Routes
 // Home route
@@ -131,7 +155,8 @@ app.get('/api/games', (req, res) => {
 
 // Get game by ID
 app.get('/api/games/:id', (req, res) => {
-  const game = games.find((g) => g.id === parseInt(req.params.id));
+  const gameId = parseInt(req.params.id);
+  const game = games.find((g) => g.id === gameId);
   if (game) {
     res.json(game);
   } else {
@@ -142,56 +167,133 @@ app.get('/api/games/:id', (req, res) => {
 // Add to cart
 app.post('/api/cart', (req, res) => {
   const { gameId, quantity } = req.body;
-  const game = games.find((g) => g.id === gameId);
+  const userId = req.headers['user-id']; // Get user ID from headers
 
-  if (game && game.inStock) {
-    const existingItem = cart.find((item) => item.gameId === gameId);
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      cart.push({ gameId, quantity });
-    }
-    res.json({ message: 'Game added to cart', cart });
-  } else {
-    res.status(400).json({ message: 'Game not available' });
+  if (!userId) {
+    return res.status(401).json({ message: 'User not authenticated' });
   }
+
+  const game = games.find((g) => g.id === gameId);
+  if (!game || !game.inStock) {
+    return res.status(400).json({ message: 'Game not available' });
+  }
+
+  const userCart = getUserCart(userId);
+  const existingItem = userCart.find((item) => item.gameId === gameId);
+
+  if (existingItem) {
+    existingItem.quantity += quantity;
+  } else {
+    userCart.push({ gameId, quantity });
+  }
+
+  res.json({
+    message: 'Game added to cart',
+    cart: userCart.map(item => {
+      const game = games.find(g => g.id === item.gameId);
+      return { ...game, quantity: item.quantity };
+    })
+  });
 });
 
 // Get cart items
 app.get('/api/cart', (req, res) => {
-  const cartItems = cart.map((item) => {
+  const userId = req.headers['user-id']; // Get user ID from headers
+
+  if (!userId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
+
+  const userCart = getUserCart(userId);
+  const cartItems = userCart.map((item) => {
     const game = games.find((g) => g.id === item.gameId);
     return { ...game, quantity: item.quantity };
   });
+
   res.json(cartItems);
 });
 
 // Remove from cart
 app.delete('/api/cart/:gameId', (req, res) => {
+  const userId = req.headers['user-id']; // Get user ID from headers
   const gameId = parseInt(req.params.gameId);
-  cart = cart.filter((item) => item.gameId !== gameId);
-  res.json({ message: 'Game removed from cart', cart });
+
+  if (!userId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
+
+  const userCart = getUserCart(userId);
+  const updatedCart = userCart.filter((item) => item.gameId !== gameId);
+  userCarts.set(userId, updatedCart);
+
+  res.json({
+    message: 'Game removed from cart',
+    cart: updatedCart.map(item => {
+      const game = games.find(g => g.id === item.gameId);
+      return { ...game, quantity: item.quantity };
+    })
+  });
+});
+
+// Update cart item quantity
+app.put('/api/cart', (req, res) => {
+  const userId = req.headers['user-id']; // Get user ID from headers
+  const { gameId, quantity } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: 'User not authenticated' });
+  }
+
+  const userCart = getUserCart(userId);
+  const item = userCart.find((item) => item.gameId === gameId);
+
+  if (!item) {
+    return res.status(404).json({ message: 'Item not found in cart' });
+  }
+
+  if (quantity <= 0) {
+    return this.removeFromCart(gameId);
+  }
+
+  item.quantity = quantity;
+  res.json({
+    message: 'Cart updated',
+    cart: userCart.map(item => {
+      const game = games.find(g => g.id === item.gameId);
+      return { ...game, quantity: item.quantity };
+    })
+  });
 });
 
 // User login
 app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body;
-  const user = users.find((u) => u.username === username && u.password === password);
+  console.log('Received login request');
+  console.log('Request body:', req.body);
+  console.log('Request headers:', req.headers);
+  
+  const { email, password } = req.body;
+  console.log('Extracted credentials:', { email, password });
+  console.log('Available users:', JSON.stringify(users, null, 2));
+  
+  const user = users.find((u) => u.email === email && u.password === password);
+  console.log('Found user:', user);
 
   if (user) {
+    console.log('Login successful');
     res.json({ message: 'Login successful', user });
   } else {
+    console.log('Login failed - invalid credentials');
     res.status(401).json({ message: 'Invalid credentials' });
   }
 });
 
 // User registration
 app.post('/api/auth/register', (req, res) => {
-  const { username, password } = req.body;
-  if (users.find((u) => u.username === username)) {
-    res.status(400).json({ message: 'Username already exists' });
+  const { email, password } = req.body;
+  if (users.find((u) => u.email === email)) {
+    res.status(400).json({ message: 'Email already exists' });
   } else {
-    const newUser = { id: users.length + 1, username, password };
+    const newUser = { id: users.length + 1, email, password };
     users.push(newUser);
     res.json({ message: 'Registration successful', user: newUser });
   }

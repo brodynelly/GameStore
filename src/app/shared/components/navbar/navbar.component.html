@@ -23,7 +23,7 @@
           <ng-container *ngIf="isLoggedIn; else authLinks">
             <a class="navbar-item user-link">
               <span class="material-icons">person</span>
-              <span class="username">{{ username }}</span>
+              <span class="user-email">{{ userEmail }}</span>
             </a>
             <a class="navbar-item" (click)="logout()">Logout</a>
           </ng-container>
