@@ -4,3 +4,6 @@
 ![image](https://github.com/user-attachments/assets/44cfb3da-a060-4236-9dde-3284dde146e5)
 
 
+## About
+
+Final Project for Web Development Two at the University of Missouri

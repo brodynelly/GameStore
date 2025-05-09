@@ -1,0 +1,73 @@
+<div class="catalog-container">
+    <div class="container">
+      <header class="catalog-header">
+        <h1 class="catalog-title">Game Catalog</h1>
+        <p class="catalog-subtitle">Find your next favorite game from our collection</p>
+      </header>
+      
+      <div class="catalog-filters">
+        <div class="search-bar">
+          <span class="material-icons search-icon">search</span>
+          <input 
+            type="text" 
+            class="form-control search-input" 
+            placeholder="Search games..." 
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()"
+          >
+          <button *ngIf="searchQuery" class="clear-search" (click)="clearSearch()">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label for="genre-filter">Genre:</label>
+            <select id="genre-filter" class="form-control" [(ngModel)]="selectedGenre" (change)="applyFilters()">
+              <option value="">All Genres</option>
+              <option *ngFor="let genre of genres" [value]="genre">{{ genre }}</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="sort-by">Sort By:</label>
+            <select id="sort-by" class="form-control" [(ngModel)]="sortBy" (change)="applyFilters()">
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="price-asc">Price (Low to High)</option>
+              <option value="price-desc">Price (High to Low)</option>
+              <option value="rating-desc">Highest Rated</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="catalog-content">
+        <ng-container *ngIf="!isLoading; else loadingTemplate">
+          <ng-container *ngIf="filteredGames.length > 0; else noGamesTemplate">
+            <div class="games-grid">
+              <div class="game-card-container fade-in" *ngFor="let game of filteredGames">
+                <app-game-card [game]="game"></app-game-card>
+              </div>
+            </div>
+          </ng-container>
+          
+          <ng-template #noGamesTemplate>
+            <div class="no-results">
+              <span class="material-icons no-results-icon">search_off</span>
+              <h3>No games found</h3>
+              <p>Try adjusting your search or filters</p>
+              <button class="btn btn-primary" (click)="resetFilters()">Reset Filters</button>
+            </div>
+          </ng-template>
+        </ng-container>
+        
+        <ng-template #loadingTemplate>
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading games...</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
