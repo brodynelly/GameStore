@@ -37,12 +37,58 @@ app.use('/api/cart', cartRoutes);
 app.get('/', (req, res) => {
   res.send('Welcome to the Game Store API!');
 });
+// Normalize a port into a number, string, or false
+const normalizePort = (val) => {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    return val; // Named pipe
+  }
+
+  if (port >= 0) {
+    return port; // Port number
+  }
+
+  return false;
+};
+
+const PORT = normalizePort(process.env.PORT || '3000');
+
+// Event listener for HTTP server "error" event
+const onError = (error) => {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof PORT === 'string' ? `Pipe ${PORT}` : `Port ${PORT}`;
+
+  switch (error.code) {
+    case 'EACCES':
+      console.error(`${bind} requires elevated privileges`);
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(`${bind} is already in use`);
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+};
+
+// Event listener for HTTP server "listening" event
+const onListening = () => {
+  const bind = typeof PORT === 'string' ? `Pipe ${PORT}` : `Port ${PORT}`;
+  console.log(`Server is running on ${bind}`);
+};
 
 // Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+const server = app.listen(PORT);
+server.on('error', onError);
+server.on('listening', onListening);
 
 module.exports = app;
+
+
+
 
