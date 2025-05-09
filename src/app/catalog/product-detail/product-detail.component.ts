@@ -24,21 +24,28 @@ export class ProductDetailComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
-  get isInCart(): boolean {
-    return this.game ? this.cartService.isInCart(this.game.id) : false;
-  }
+  // get isInCart(): boolean {
+  //   return this.game ? this.cartService.isInCart(this.game.id) : false;
+  // }
+
+  isInCart = false;
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const id = +params['id'];
-
+  
       if (isNaN(id)) {
         this.errorMessage = 'Invalid game ID';
         this.isLoading = false;
         return;
       }
-
+  
       this.loadGame(id);
+  
+      // Subscribe to cart state
+      this.cartService.getCartItems().subscribe(cartItems => {
+        this.isInCart = cartItems.some(item => item.id === id);
+      });
     });
   }
 
@@ -55,16 +62,17 @@ export class ProductDetailComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = 'Failed to load game details';
+        this.errorMessage = error.error?.message || 'Failed to load game details';
         this.isLoading = false;
         console.error('Error loading game:', error);
       }
     });
   }
 
+  isAddingToCart = false;
+
   addToCart(game: Game): void {
     if (!this.authService.isLoggedIn()) {
-      // Redirect to login if not logged in
       this.router.navigate(['/auth/login'], {
         queryParams: { returnUrl: this.router.url }
       });
@@ -72,13 +80,22 @@ export class ProductDetailComponent implements OnInit {
     }
 
     if (!this.isInCart) {
-      this.cartService.addToCart(game);
+      this.isAddingToCart = true;
+      this.cartService.addToCart(game.id).subscribe({
+        next: () => {
+          this.isAddingToCart = false;
+        },
+        error: (err) => {
+          this.isAddingToCart = false;
+          console.error('Failed to add game to cart:', err);
+        }
+      });
     }
   }
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'long',
       day: 'numeric'

@@ -42,6 +42,7 @@ export class NavbarComponent {
   }
   
   logout() {
+    console.log('Logging out...');
     this.authService.logout();
     this.isMenuOpen = false;
   }

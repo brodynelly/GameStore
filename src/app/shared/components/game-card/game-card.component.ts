@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Game } from '../../../core/models/game.model';
 import { CartService } from '../../../core/services/cart.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -17,6 +17,7 @@ export class GameCardComponent {
 
   private cartService = inject(CartService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   get isInCart(): boolean {
     return this.cartService.isInCart(this.game.id);
@@ -24,13 +25,20 @@ export class GameCardComponent {
 
   addToCart(): void {
     if (!this.authService.isLoggedIn()) {
-      // If not logged in, navigate to login (would add a toast in a real app)
-      alert('Please log in to add items to your cart');
+      // Redirect to login if not logged in
+      this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: this.router.url }
+      });
       return;
     }
 
-    if (!this.isInCart) {
-      this.cartService.addToCart(this.game);
-    }
+    this.cartService.addToCart(this.game.id).subscribe({
+      next: (response) => {
+        console.log('Game added to cart:', response);
+      },
+      error: (err) => {
+        console.error('Failed to add game to cart:', err);
+      }
+    });
   }
 }

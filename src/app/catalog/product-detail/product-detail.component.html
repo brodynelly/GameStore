@@ -17,7 +17,14 @@
         </div><div class="product-meta"><div class="meta-item"><span class="label">Release Date:</span><span>{{ formatDate(game.releaseDate) }}</span>
         </div>
     </div>
-    <div class="product-action"><div class="product-price">${{ game.price }}</div><button class="btn btn-primary add-to-cart-btn" [disabled]="isInCart" [class.in-cart]="isInCart" (click)="addToCart(game)"><span class="material-icons">{{ isInCart ? "check" : "add_shopping_cart" }}</span>{{ isInCart ? "Added to Cart" : "Add to Cart" }}</button>
+    <div class="product-action"><div class="product-price">${{ game.price }}</div>
+    <button class="btn btn-primary add-to-cart-btn" 
+        [disabled]="isInCart || isAddingToCart" 
+        [class.in-cart]="isInCart" 
+        (click)="addToCart(game)">
+  <span class="material-icons">{{ isInCart ? "check" : "add_shopping_cart" }}</span>
+  {{ isInCart ? "Added to Cart" : (isAddingToCart ? "Adding..." : "Add to Cart") }}
+</button>
 </div>
 </div>
 </div>

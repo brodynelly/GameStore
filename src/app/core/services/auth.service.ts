@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../models/user.model';
 
@@ -8,14 +8,19 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = 'http://localhost:4000/api/auth';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
-      this.currentUserSubject.next(JSON.parse(storedUser));
+      const user = JSON.parse(storedUser);
+      if (this.isValidSession(user)) {
+        this.currentUserSubject.next(user);
+      } else {
+        localStorage.removeItem('currentUser');
+      }
     }
   }
 
@@ -42,8 +47,13 @@ export class AuthService {
   }
 
   logout(): void {
+    localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
+  }
+
+  private isValidSession(user: User): boolean {
+    return !!user && !!user.token;
   }
 
   isLoggedIn(): boolean {
@@ -54,8 +64,8 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  // New functionality: Fetch user profile from backend
-  fetchUserProfile(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/profile`);
-  }
+  // Uncomment and use if you implement profile endpoint on the backend
+  // fetchUserProfile(): Observable<User> {
+  //   return this.http.get<User>(`${this.apiUrl}/profile`);
+  // }
 }

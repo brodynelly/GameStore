@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CartItem } from '../models/cart-item.model';
 import { Game } from '../models/game.model';
 
@@ -8,7 +8,7 @@ import { Game } from '../models/game.model';
   providedIn: 'root'
 })
 export class CartService {
-  private apiUrl = 'http://localhost:3000/api/cart';
+  private apiUrl = 'http://localhost:4000/api/cart';
   private cartItems: CartItem[] = [];
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   public cartItems$ = this.cartItemsSubject.asObservable();
@@ -61,22 +61,25 @@ export class CartService {
     return this.cartCount$;
   }
 
-  addToCart(game: Game): void {
-    const existingItem = this.cartItems.find(item => item.id === game.id);
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      this.cartItems.push({
-        id: game.id,
-        title: game.title,
-        price: game.price,
-        imageUrl: game.imageUrl,
-        quantity: 1
-      });
-    }
-
-    this.saveCart();
+  addToCart(gameId: number, quantity: number = 1): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(`${this.apiUrl}`, { gameId, quantity }, { headers }).pipe(
+      tap({
+        next: () => {
+          const existingItem = this.cartItems.find(item => item.id === gameId);
+          if (existingItem) {
+            existingItem.quantity += quantity;
+          } else {
+            this.cartItems.push({ id: gameId, title: '', price: 0, imageUrl: '', quantity });
+          }
+          this.saveCart();
+        },
+        error: (err) => {
+          console.error('Failed to add to cart:', err);
+        }
+      })
+    );
   }
 
   removeFromCart(gameId: number): void {

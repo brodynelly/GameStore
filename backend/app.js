@@ -1,11 +1,27 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 
 app.use(cors()); // Allow frontend requests (on a different port)
 app.use(bodyParser.json()); // Parse JSON bodies
+
+// Middleware to authenticate tokens
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  console.log('Token received:', token); // Debugging
+
+  if (!token) return res.status(401).json({ message: 'Access token required' });
+
+  jwt.verify(token, 'secretKey', (err, user) => {
+    if (err) return res.status(403).json({ message: 'Invalid or expired token' });
+    req.user = user;
+    next();
+  });
+};
 
 // Mock data
 const games = [
@@ -116,7 +132,7 @@ const games = [
 ];
 
 let cart = [];
-let users = [{ id: 1, username: 'testuser', password: 'password123' }];
+let users = [{ id: 1, username: 'admin', password: 'admin' }];
 
 // Routes
 // Home route
@@ -127,6 +143,11 @@ app.get('/', (req, res) => {
 // Get all games
 app.get('/api/games', (req, res) => {
   res.json(games);
+});
+
+// User authentication middleware
+app.get('/api/protected-route', authenticateToken, (req, res) => {
+  res.json({ message: 'This is a protected route', user: req.user });
 });
 
 // Get game by ID
@@ -140,7 +161,7 @@ app.get('/api/games/:id', (req, res) => {
 });
 
 // Add to cart
-app.post('/api/cart', (req, res) => {
+app.post('/api/cart', authenticateToken, (req, res) => {
   const { gameId, quantity } = req.body;
   const game = games.find((g) => g.id === gameId);
 
@@ -179,11 +200,14 @@ app.post('/api/auth/login', (req, res) => {
   const user = users.find((u) => u.username === username && u.password === password);
 
   if (user) {
-    res.json({ message: 'Login successful', user });
+    const token = jwt.sign({ id: user.id, username: user.username }, 'secretKey', { expiresIn: '1h' });
+    const userWithToken = { id: user.id, username: user.username, token };
+    res.json(userWithToken);
   } else {
     res.status(401).json({ message: 'Invalid credentials' });
   }
 });
+
 
 // User registration
 app.post('/api/auth/register', (req, res) => {
@@ -193,12 +217,15 @@ app.post('/api/auth/register', (req, res) => {
   } else {
     const newUser = { id: users.length + 1, username, password };
     users.push(newUser);
-    res.json({ message: 'Registration successful', user: newUser });
+    const token = jwt.sign({ id: newUser.id, username: newUser.username }, 'secretKey', { expiresIn: '1h' });
+    const userWithToken = { id: newUser.id, username: newUser.username, token };
+    res.json(userWithToken);
   }
 });
 
+
 // Start server
-const PORT = 3000;
+const PORT = 4000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

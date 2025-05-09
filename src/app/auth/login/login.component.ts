@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { UserService } from '../../services/user.services'; // Use UserService
+import { AuthService } from '../../services/auth.service'; // Use AuthService
 
 @Component({
   selector: 'app-login',
@@ -16,6 +17,7 @@ export class LoginComponent {
   private userService = inject(UserService); // Inject UserService
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService); // Inject AuthService
 
   loginForm: FormGroup;
   errorMessage = '';
@@ -33,18 +35,21 @@ export class LoginComponent {
   get username() { return this.loginForm.get('username'); }
   get password() { return this.loginForm.get('password'); }
   onSubmit() {
+    console.log('Form submitted:', this.loginForm.value);
     if (this.loginForm.invalid) return;
   
     this.isLoading = true;
     this.errorMessage = '';
   
     const { username, password } = this.loginForm.value;
-    console.log('Login attempt:', { username, password });
   
     this.userService.login(username, password).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        //localStorage.removeItem('token'); // Clear any existing token
+        localStorage.setItem('token', response.token); // Store the new token
+        console.log('Token stored:', response.token);
+        this.authService.setCurrentUser(response.user); // Update AuthService state
         this.router.navigate(['/']); // Redirect to home or another page
       },
       error: (err) => {
