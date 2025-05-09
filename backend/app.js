@@ -100,6 +100,6 @@ const onListening = () => {
 // Start the dynamic server
 const dynamicServer = dynamicApp.listen(DYNAMIC_PORT);
 dynamicServer.on('error', onError);
-dynamicServer.on('listening', onListening);
+dynamicServer.on('listening', onListening); 
 
 module.exports = { staticApp, dynamicApp };
